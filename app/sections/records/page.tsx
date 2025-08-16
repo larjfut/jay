@@ -18,15 +18,10 @@ export default function RecordsPage(){
 
   const left = (
     <main className="card">
-      \1
-        <div className="mt-2 flex flex-wrap gap-2">
-          <button className="btn" onClick={()=>setOpenRI(true)}>Smart Import (PDFs/images)</button>
-        </div>
       <IndexTable rows={rows} onChange={setRows} />
       <div className="pt-4">
         <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(store)}>Export Cover Sheet (DOCX)</button>
       </div>
-      <SmartImportRecords open={openRI} onClose={()=>setOpenRI(false)} onApply={onApplyImport} />
     </main>
   )
 

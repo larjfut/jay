@@ -17,7 +17,15 @@ export type FamilyRow = { relation: string; age?: string; conditions: string; dx
 export type RecordsIndexRow = { category: string; filename?: string; dateRange?: string }
 export type TestsIndexRow = { category: string; filename?: string; dateRange?: string }
 export type Provider = { doctorName: string; specialty?: string; email?: string; dueDate?: string; status?: 'Not started'|'Requested'|'In progress'|'Received'; notes?: string }
-export type CoverToc = { title?: string; date?: string }
+export type CoverToc = {
+  title?: string
+  date?: string
+  items: { section: string; title: string; filename?: string; pagesOrSize?: string }[]
+  patientName?: string
+  dob?: string
+  datePrepared?: string
+  contact?: string
+}
 export type Patient = { name: string; pronouns?: string; dob?: string }
 
 export type PacketState = {
@@ -60,7 +68,15 @@ const DEFAULT: PacketState = {
     { category:'Other' },
   ],
   provider: { doctorName:'', specialty:'', email:'', dueDate:'', status:'Not started', notes:'' },
-  coverToc: { title:'Baylor UDC Packet', date: new Date().toISOString().slice(0,10) },
+  coverToc: {
+    title: 'Baylor UDC Packet',
+    date: new Date().toISOString().slice(0,10),
+    items: [],
+    patientName: '',
+    dob: '',
+    datePrepared: '',
+    contact: '',
+  },
   privacy: { redacted: false },
   lastSavedAt: new Date().toISOString(),
   checklist: {},

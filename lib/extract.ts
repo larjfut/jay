@@ -1,7 +1,7 @@
 'use client'
 
 export async function extractTextFromPDF(file: File): Promise<string> {
-  const pdfjs = await import('pdfjs-dist/build/pdf')
+  const pdfjs = await import('pdfjs-dist')
   // @ts-ignore
   const workerSrc = await import('pdfjs-dist/build/pdf.worker.min.mjs')
   // @ts-ignore

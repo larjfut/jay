@@ -1,7 +1,14 @@
 'use client'
-import type { ReactNode, ComponentType } from 'react'
+import type { ReactNode, ComponentType, PropsWithChildren } from 'react'
 
 type IconProps = { size?: number; className?: string }
+
+type Props = PropsWithChildren<{
+  title: string
+  icon?: ComponentType<IconProps>
+  size?: number
+  className?: string
+}>
 
 export default function InfoSidebar({
   title,
@@ -9,13 +16,7 @@ export default function InfoSidebar({
   size = 18,
   className = '',
   children,
-}: {
-  title: string
-  icon?: ComponentType<IconProps>
-  size?: number
-  className?: string
-  children: ReactNode
-}) {
+}: Props) {
   return (
     <aside className={`lg:col-span-1 card lg:sticky lg:top-4 h-fit ${className}`}>
       <h3 className="text-base font-semibold mb-2 flex items-center">

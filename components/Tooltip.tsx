@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 
-export default function Tooltip({label, children}:{label:string; children:React.ReactNode}){
+export default function Tooltip({label, children}:{label:string; children?:React.ReactNode}){
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement|null>(null)
   useEffect(()=>{

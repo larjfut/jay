@@ -1,13 +1,24 @@
-
 'use client'
+import type { Document, Packer, Paragraph, HeadingLevel, TextRun, Table, TableRow, TableCell, WidthType } from 'docx'
 import { PacketState } from '@/lib/store'
 
-function titlePara(text:string){ return new Paragraph({ text, heading: HeadingLevel.TITLE }) }
-function h2(text:string){ return new Paragraph({ text, heading: HeadingLevel.HEADING_2 }) }
-function p(text:string){ return new Paragraph({ children: [new TextRun(text)] }) }
+async function loadDocx(){
+  return (await import('docx')) as typeof import('docx')
+}
+
+function helpers(docx: typeof import('docx')){
+  const { Paragraph, HeadingLevel, TextRun } = docx
+  return {
+    titlePara: (text:string)=> new Paragraph({ text, heading: HeadingLevel.TITLE }),
+    h2: (text:string)=> new Paragraph({ text, heading: HeadingLevel.HEADING_2 }),
+    p: (text:string)=> new Paragraph({ children:[new TextRun(text)] }),
+  }
+}
 
 export async function buildCoverTocDoc(state: PacketState){
-  const { Document, Packer, Paragraph, HeadingLevel, TextRun, Table, TableRow, TableCell, WidthType } = await import('docx');
+  const docx = await loadDocx()
+  const { Document, Packer } = docx
+  const { titlePara, h2, p } = helpers(docx)
   const name = state.patient?.name || 'Patient'
   const doc = new Document({ sections: [{ children: [
     titlePara('Baylor UDC Packet'),
@@ -22,14 +33,13 @@ export async function buildCoverTocDoc(state: PacketState){
     p('7. Medication History'),
     p('8. Family History'),
   ]}]})
-  return {
-    doc,
-    async createBlob(){ return await Packer.toBlob(doc) }
-  }
+  return { doc, async createBlob(){ return await Packer.toBlob(doc) } }
 }
 
 export async function buildNarrativeDoc(state: PacketState){
-  const { Document, Packer, Paragraph, HeadingLevel, TextRun, Table, TableRow, TableCell, WidthType } = await import('docx');
+  const docx = await loadDocx()
+  const { Document, Packer } = docx
+  const { titlePara, h2, p } = helpers(docx)
   const n = state.narrative
   const doc = new Document({ sections: [{ children: [
     titlePara('Section 2 — Narrative'),
@@ -43,7 +53,9 @@ export async function buildNarrativeDoc(state: PacketState){
 }
 
 export async function buildTimelineDoc(state: PacketState){
-  const { Document, Packer, Paragraph, HeadingLevel, TextRun, Table, TableRow, TableCell, WidthType } = await import('docx');
+  const docx = await loadDocx()
+  const { Document, Packer, Table, TableRow, TableCell, WidthType } = docx
+  const { titlePara, p } = helpers(docx)
   const rows = state.narrative.timeline || []
   const table = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
@@ -63,7 +75,9 @@ export async function buildTimelineDoc(state: PacketState){
 }
 
 export async function buildMedsDoc(state: PacketState){
-  const { Document, Packer, Paragraph, HeadingLevel, TextRun, Table, TableRow, TableCell, WidthType } = await import('docx');
+  const docx = await loadDocx()
+  const { Document, Packer, Table, TableRow, TableCell, WidthType } = docx
+  const { titlePara, h2, p } = helpers(docx)
   const head = new TableRow({ children: ['Name','Dosage & Freq','Start','Stop','Purpose','Response','Side effects'].map(h=> new TableCell({ children:[p(h)] })) })
   const mkRows = (rows:any[]) => rows.map(r=> new TableRow({ children: [
     new TableCell({ children:[p(r.name||'')]}),
@@ -83,7 +97,9 @@ export async function buildMedsDoc(state: PacketState){
 }
 
 export async function buildFamilyDoc(state: PacketState){
-  const { Document, Packer, Paragraph, HeadingLevel, TextRun, Table, TableRow, TableCell, WidthType } = await import('docx');
+  const docx = await loadDocx()
+  const { Document, Packer, Table, TableRow, TableCell, WidthType } = docx
+  const { titlePara, p } = helpers(docx)
   const head = new TableRow({ children: ['Relation','Age/Age at death','Conditions','Age at dx','Notes'].map(h=> new TableCell({ children:[p(h)] })) })
   const rows = (state.family||[]).map(r=> new TableRow({ children: [
     new TableCell({ children:[p(r.relation||'')]}),
@@ -97,7 +113,9 @@ export async function buildFamilyDoc(state: PacketState){
 }
 
 export async function buildRecordsCoverDoc(state: PacketState){
-  const { Document, Packer, Paragraph, HeadingLevel, TextRun, Table, TableRow, TableCell, WidthType } = await import('docx');
+  const docx = await loadDocx()
+  const { Document, Packer, Table, TableRow, TableCell, WidthType } = docx
+  const { titlePara, p } = helpers(docx)
   const rows = state.recordsIndex||[]
   const head = new TableRow({ children: ['#','Filename','Category','Date range'].map(h=> new TableCell({ children:[p(h)] })) })
   const body = rows.map((r, i)=> new TableRow({ children: [
@@ -111,7 +129,9 @@ export async function buildRecordsCoverDoc(state: PacketState){
 }
 
 export async function buildTestsCoverDoc(state: PacketState){
-  const { Document, Packer, Paragraph, HeadingLevel, TextRun, Table, TableRow, TableCell, WidthType } = await import('docx');
+  const docx = await loadDocx()
+  const { Document, Packer, Table, TableRow, TableCell, WidthType } = docx
+  const { titlePara, p } = helpers(docx)
   const rows = state.testsIndex||[]
   const head = new TableRow({ children: ['#','Filename','Category','Date range'].map(h=> new TableCell({ children:[p(h)] })) })
   const body = rows.map((r, i)=> new TableRow({ children: [
@@ -124,14 +144,22 @@ export async function buildTestsCoverDoc(state: PacketState){
   return { doc, async createBlob(){ return await Packer.toBlob(doc) } }
 }
 
-// Legacy export helpers kept for existing buttons (they trigger downloads directly)
-export async function generateCoverTocDoc(state: PacketState){ const b = await buildCoverTocDoc(state).createBlob(); dl(b, '1_Cover_TOC.docx') }
-export async function generateNarrativeDoc(state: PacketState){ const b = await buildNarrativeDoc(state).createBlob(); dl(b, '2_Narrative.docx') }
-export async function generateTimelineDoc(state: PacketState){ const b = await buildTimelineDoc(state).createBlob(); dl(b, '4_Timeline.docx') }
-export async function generateMedsDoc(state: PacketState){ const b = await buildMedsDoc(state).createBlob(); dl(b, '7_Medications.docx') }
-export async function generateFamilyDoc(state: PacketState){ const b = await buildFamilyDoc(state).createBlob(); dl(b, '8_Family_History.docx') }
-export async function generateRecordsCoverDoc(state: PacketState){ const b = await buildRecordsCoverDoc(state).createBlob(); dl(b, '5_Records_Index_Cover.docx') }
-export async function generateTestsCoverDoc(state: PacketState){ const b = await buildTestsCoverDoc(state).createBlob(); dl(b, '6_Tests_Index_Cover.docx') }
+export async function buildProviderTrackerDoc(state: PacketState){
+  const docx = await loadDocx()
+  const { Document, Packer } = docx
+  const { titlePara, p } = helpers(docx)
+  const prov = state.provider
+  const doc = new Document({ sections: [{ children: [
+    titlePara('Section 3 — Provider Tracker'),
+    p(`Doctor: ${prov.doctorName || ''}`),
+    p(`Specialty: ${prov.specialty || ''}`),
+    p(`Email: ${prov.email || ''}`),
+    p(`Due Date: ${prov.dueDate || ''}`),
+    p(`Status: ${prov.status || ''}`),
+    p(`Notes: ${prov.notes || ''}`),
+  ] }]})
+  return { doc, async createBlob(){ return await Packer.toBlob(doc) } }
+}
 
 function dl(blob: Blob, name: string){
   const a = document.createElement('a')
@@ -140,3 +168,37 @@ function dl(blob: Blob, name: string){
   a.click()
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000)
 }
+
+export async function generateCoverTocDoc(state: PacketState){
+  const b = await (await buildCoverTocDoc(state)).createBlob()
+  dl(b, '1_Cover_TOC.docx')
+}
+export async function generateNarrativeDoc(state: PacketState){
+  const b = await (await buildNarrativeDoc(state)).createBlob()
+  dl(b, '2_Narrative.docx')
+}
+export async function generateTimelineDoc(state: PacketState){
+  const b = await (await buildTimelineDoc(state)).createBlob()
+  dl(b, '4_Timeline.docx')
+}
+export async function generateMedsDoc(state: PacketState){
+  const b = await (await buildMedsDoc(state)).createBlob()
+  dl(b, '7_Medications.docx')
+}
+export async function generateFamilyDoc(state: PacketState){
+  const b = await (await buildFamilyDoc(state)).createBlob()
+  dl(b, '8_Family_History.docx')
+}
+export async function generateRecordsCoverDoc(state: PacketState){
+  const b = await (await buildRecordsCoverDoc(state)).createBlob()
+  dl(b, '5_Records_Index_Cover.docx')
+}
+export async function generateTestsCoverDoc(state: PacketState){
+  const b = await (await buildTestsCoverDoc(state)).createBlob()
+  dl(b, '6_Tests_Index_Cover.docx')
+}
+export async function generateProviderTrackerDoc(state: PacketState){
+  const b = await (await buildProviderTrackerDoc(state)).createBlob()
+  dl(b, '3_Provider_Tracker.docx')
+}
+
