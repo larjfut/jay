@@ -7,16 +7,17 @@ import InfoSidebar from '@/components/InfoSidebar'
 import Tooltip from '@/components/Tooltip'
 import SmartImportDialog from '@/components/SmartImportDialog'
 export default function TestsPage(){
-  const store = usePacket()
-  const [rows, setRows] = useState<TestsIndexRow[]>(store.testsIndex||[])
+  const testsIndex = usePacket(s => s.testsIndex)
+  const set = usePacket(s => s.set)
+  const [rows, setRows] = useState<TestsIndexRow[]>(testsIndex||[])
   const [open, setOpen] = useState(false)
   useEffect(()=>{
     const loaded = loadFromLocal()
     if (loaded.testsIndex) setRows(loaded.testsIndex as any)
   },[])
   useEffect(()=>{
-    store.set('testsIndex', rows); saveToLocal({} as any)
-  },[rows])
+    set('testsIndex', rows); saveToLocal({} as any)
+  },[rows, set])
 
   const left = (
     <main className="card">
@@ -25,7 +26,7 @@ export default function TestsPage(){
       </div>
       <IndexTable rows={rows} onChange={setRows} />
       <div className="pt-4">
-        <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(store)}>Export Cover Sheet (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(usePacket.getState())}>Export Cover Sheet (DOCX)</button>
       </div>
       <SmartImportDialog
         open={open}

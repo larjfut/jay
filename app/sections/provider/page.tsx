@@ -6,15 +6,16 @@ import TwoCol from '@/components/TwoCol'
 import InfoSidebar from '@/components/InfoSidebar'
 
 export default function ProviderPage(){
-  const store = usePacket()
-  const [p, setP] = useState(store.provider)
+  const provider = usePacket(s => s.provider)
+  const set = usePacket(s => s.set)
+  const [p, setP] = useState(provider)
   useEffect(()=>{
     const loaded = loadFromLocal()
     if (loaded.provider) setP(loaded.provider as any)
   },[])
   useEffect(()=>{
-    store.set('provider', p); saveToLocal({} as any)
-  },[p])
+    set('provider', p); saveToLocal({} as any)
+  },[p, set])
 
   const left = (
     <main className="card space-y-4">
@@ -32,7 +33,7 @@ export default function ProviderPage(){
       </select>
       <Field label="Notes" value={p.notes||''} onChange={v=>setP({...p, notes:v})} />
       <div className="pt-2">
-        <button className="btn btn-primary" onClick={()=>generateProviderTrackerDoc(store)}>Export Tracker (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateProviderTrackerDoc(usePacket.getState())}>Export Tracker (DOCX)</button>
       </div>
     </main>
   )

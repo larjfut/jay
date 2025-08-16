@@ -7,16 +7,17 @@ import InfoSidebar from '@/components/InfoSidebar'
 import Tooltip from '@/components/Tooltip'
 import SmartImportDialog from '@/components/SmartImportDialog'
 export default function RecordsPage(){
-  const store = usePacket()
-  const [rows, setRows] = useState<RecordsIndexRow[]>(store.recordsIndex||[])
+  const recordsIndex = usePacket(s => s.recordsIndex)
+  const set = usePacket(s => s.set)
+  const [rows, setRows] = useState<RecordsIndexRow[]>(recordsIndex||[])
   const [open, setOpen] = useState(false)
   useEffect(()=>{
     const loaded = loadFromLocal()
     if (loaded.recordsIndex) setRows(loaded.recordsIndex as any)
   },[])
   useEffect(()=>{
-    store.set('recordsIndex', rows); saveToLocal({} as any)
-  },[rows])
+    set('recordsIndex', rows); saveToLocal({} as any)
+  },[rows, set])
 
   const left = (
     <main className="card">
@@ -25,7 +26,7 @@ export default function RecordsPage(){
       </div>
       <IndexTable rows={rows} onChange={setRows} />
       <div className="pt-4">
-        <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(store)}>Export Cover Sheet (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(usePacket.getState())}>Export Cover Sheet (DOCX)</button>
       </div>
       <SmartImportDialog
         open={open}

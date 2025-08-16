@@ -15,23 +15,23 @@ import { CalendarRange, ClipboardList, FileDown, FileSpreadsheet, FileText, Flas
 
 export default function Wizard(){
   const displayName = useDisplayName()
-  const store = usePacket()
+  const set = usePacket(s => s.set)
   const [step, setStep] = useState(1)
 
   useEffect(()=>{
     const loaded = loadFromLocal()
     if (Object.keys(loaded || {}).length) {
-      if (loaded.narrative) store.set('narrative', loaded.narrative as any)
-      if (loaded.medsCurrent) store.set('medsCurrent', loaded.medsCurrent as any)
-      if (loaded.medsPast) store.set('medsPast', loaded.medsPast as any)
-      if (loaded.family) store.set('family', loaded.family as any)
-      if (loaded.recordsIndex) store.set('recordsIndex', loaded.recordsIndex as any)
-      if (loaded.testsIndex) store.set('testsIndex', loaded.testsIndex as any)
-      if (loaded.provider) store.set('provider', loaded.provider as any)
-      if (loaded.coverToc) store.set('coverToc', loaded.coverToc as any)
-      if (loaded.checklist) store.set('checklist', loaded.checklist as any)
+      if (loaded.narrative) set('narrative', loaded.narrative as any)
+      if (loaded.medsCurrent) set('medsCurrent', loaded.medsCurrent as any)
+      if (loaded.medsPast) set('medsPast', loaded.medsPast as any)
+      if (loaded.family) set('family', loaded.family as any)
+      if (loaded.recordsIndex) set('recordsIndex', loaded.recordsIndex as any)
+      if (loaded.testsIndex) set('testsIndex', loaded.testsIndex as any)
+      if (loaded.provider) set('provider', loaded.provider as any)
+      if (loaded.coverToc) set('coverToc', loaded.coverToc as any)
+      if (loaded.checklist) set('checklist', loaded.checklist as any)
     }
-  },[])
+  },[set])
 
   const next = ()=> setStep(s => Math.min(7, s+1))
   const prev = ()=> setStep(s => Math.max(1, s-1))
@@ -213,8 +213,8 @@ function ExportHelp(){
 }
 
 function NarrativeForm(){
-  const store = usePacket()
-  const { narrative, set } = store
+  const narrative = usePacket(s => s.narrative)
+  const set = usePacket(s => s.set)
   const [data, setData] = useState(narrative)
 
   const wordCount = useMemo(()=>{
@@ -225,7 +225,7 @@ function NarrativeForm(){
   const withinRange = wordCount >= 400 && wordCount <= 600
   const ready = withinRange && !!data.chiefConcern
 
-  useEffect(()=>{ set('narrative', data); saveToLocal({} as any) }, [data])
+  useEffect(()=>{ set('narrative', data); saveToLocal({} as any) }, [data, set])
 
   return (
     <div className="space-y-4">
@@ -249,17 +249,17 @@ function NarrativeForm(){
         <p><strong>Notes</strong>: Unknowns are okay. Say “not sure” or leave blank.</p>
       </ExpandableHelp>
       <div className="pt-2">
-        <button className="btn btn-primary" onClick={()=>generateNarrativeDoc(store)} disabled={!ready}>Export Section 2 (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateNarrativeDoc(usePacket.getState())} disabled={!ready}>Export Section 2 (DOCX)</button>
       </div>
     </div>
   )
 }
 
 function TimelineOnly(){
-  const store = usePacket()
-  const [rows, setRows] = useState(store.narrative.timeline || [])
+  const set = usePacket(s => s.set)
+  const [rows, setRows] = useState(usePacket.getState().narrative.timeline || [])
   const ready = rows.length > 0 && rows.every(r=>r.date && r.event)
-  useEffect(()=>{ store.set('narrative', { ...store.narrative, timeline: rows }); saveToLocal({} as any) }, [rows])
+  useEffect(()=>{ set('narrative', { ...usePacket.getState().narrative, timeline: rows }); saveToLocal({} as any) }, [rows, set])
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -269,19 +269,19 @@ function TimelineOnly(){
       <TimelineEditor value={rows} onChange={setRows} />
       <div className="mt-2 flex gap-2">
         <button className="btn" onClick={()=>setRows([...rows, {date:'06/2018', event:'First noticed muscle weakness', severity:'Mild', duration:'Ongoing', notes:'After flu-like illness'}])}>Insert example row</button>
-        <button className="btn btn-primary" onClick={()=>generateTimelineDoc(store)} disabled={!ready}>Export Section 4 (DOCX)</button>
-        <button className="btn" onClick={()=>generateNarrativeDoc(store)} disabled={!ready}>Export Section 2 (Includes timeline)</button>
+        <button className="btn btn-primary" onClick={()=>generateTimelineDoc(usePacket.getState())} disabled={!ready}>Export Section 4 (DOCX)</button>
+        <button className="btn" onClick={()=>generateNarrativeDoc(usePacket.getState())} disabled={!ready}>Export Section 2 (Includes timeline)</button>
       </div>
     </div>
   )
 }
 
 function MedsForm(){
-  const store = usePacket()
-  const [curr, setCurr] = useState(store.medsCurrent||[])
-  const [past, setPast] = useState(store.medsPast||[])
+  const set = usePacket(s => s.set)
+  const [curr, setCurr] = useState(usePacket.getState().medsCurrent||[])
+  const [past, setPast] = useState(usePacket.getState().medsPast||[])
   const ready = curr.length>0 || past.length>0
-  useEffect(()=>{ store.set('medsCurrent', curr); store.set('medsPast', past); saveToLocal({} as any) }, [curr,past])
+  useEffect(()=>{ set('medsCurrent', curr); set('medsPast', past); saveToLocal({} as any) }, [curr, past, set])
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -307,17 +307,17 @@ function MedsForm(){
         <p><strong>Notes</strong>: Unknowns are okay. Say “not sure” or leave blank.</p>
       </ExpandableHelp>
       <div className="pt-2">
-        <button className="btn btn-primary" onClick={()=>generateMedsDoc(store)} disabled={!ready}>Export Section 7 (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateMedsDoc(usePacket.getState())} disabled={!ready}>Export Section 7 (DOCX)</button>
       </div>
     </div>
   )
 }
 
 function FamilyForm(){
-  const store = usePacket()
-  const [rows, setRows] = useState(store.family||[])
+  const set = usePacket(s => s.set)
+  const [rows, setRows] = useState(usePacket.getState().family||[])
   const ready = rows.length>0 && rows.every(r=>r.relation && r.conditions)
-  useEffect(()=>{ store.set('family', rows); saveToLocal({} as any) }, [rows])
+  useEffect(()=>{ set('family', rows); saveToLocal({} as any) }, [rows, set])
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -362,7 +362,7 @@ function FamilyForm(){
         <p><strong>Notes</strong>: Unknowns are okay. Say “not sure” or leave blank.</p>
       </ExpandableHelp>
       <div className="pt-2">
-        <button className="btn btn-primary" onClick={()=>generateFamilyDoc(store)} disabled={!ready}>Export Section 8 (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateFamilyDoc(usePacket.getState())} disabled={!ready}>Export Section 8 (DOCX)</button>
       </div>
     </div>
   )
@@ -370,10 +370,10 @@ function FamilyForm(){
 }
 
 function RecordsIndex(){
-  const store = usePacket()
-  const [rows, setRows] = useState(store.recordsIndex||[])
+  const set = usePacket(s => s.set)
+  const [rows, setRows] = useState(usePacket.getState().recordsIndex||[])
   const ready = rows.every(r=>r.filename && r.dateRange)
-  useEffect(()=>{ store.set('recordsIndex', rows); saveToLocal({} as any) }, [rows])
+  useEffect(()=>{ set('recordsIndex', rows); saveToLocal({} as any) }, [rows, set])
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -400,7 +400,7 @@ function RecordsIndex(){
       </table>
       <div className="pt-2 flex gap-2">
         <button className="btn" onClick={()=>setRows(rows.map((r,i)=>({...r, filename: r.filename||`${5}.${i+1}_${r.category.replace(/\W+/g,'_')}.pdf`})))}>Autofill filenames</button>
-        <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(store)} disabled={!ready}>Export Section 5 Cover (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(usePacket.getState())} disabled={!ready}>Export Section 5 Cover (DOCX)</button>
       </div>
     </div>
   )
@@ -408,10 +408,10 @@ function RecordsIndex(){
 }
 
 function TestsIndex(){
-  const store = usePacket()
-  const [rows, setRows] = useState(store.testsIndex||[])
+  const set = usePacket(s => s.set)
+  const [rows, setRows] = useState(usePacket.getState().testsIndex||[])
   const ready = rows.every(r=>r.filename && r.dateRange)
-  useEffect(()=>{ store.set('testsIndex', rows); saveToLocal({} as any) }, [rows])
+  useEffect(()=>{ set('testsIndex', rows); saveToLocal({} as any) }, [rows, set])
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -438,7 +438,7 @@ function TestsIndex(){
       </table>
       <div className="pt-2 flex gap-2">
         <button className="btn" onClick={()=>setRows(rows.map((r,i)=>({...r, filename: r.filename||`${6}.${i+1}_${r.category.replace(/\W+/g,'_')}.pdf`})))}>Autofill filenames</button>
-        <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(store)} disabled={!ready}>Export Section 6 Cover (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(usePacket.getState())} disabled={!ready}>Export Section 6 Cover (DOCX)</button>
       </div>
     </div>
   )
@@ -448,17 +448,22 @@ function TestsIndex(){
 function ExportPanel(){
   const { push } = useToast()
   const red = usePacket(s=>s.privacy.redacted)
-  const store = usePacket()
-  const narrativeReady = !!store.narrative.chiefConcern && (()=>{
-    const text = [store.narrative.chiefConcern, store.narrative.workupSummary, store.narrative.impact, store.narrative.familySnapshot, store.narrative.goals].join(' ')
+  const narrative = usePacket(s=>s.narrative)
+  const medsCurrent = usePacket(s=>s.medsCurrent)
+  const medsPast = usePacket(s=>s.medsPast)
+  const family = usePacket(s=>s.family)
+  const recordsIndex = usePacket(s=>s.recordsIndex)
+  const testsIndex = usePacket(s=>s.testsIndex)
+  const narrativeReady = !!narrative.chiefConcern && (()=>{
+    const text = [narrative.chiefConcern, narrative.workupSummary, narrative.impact, narrative.familySnapshot, narrative.goals].join(' ')
     const wc = (text.trim().match(/\b\w+\b/g)||[]).length
     return wc>=400 && wc<=600
   })()
-  const timelineReady = (store.narrative.timeline||[]).length>0
-  const medsReady = (store.medsCurrent||[]).length>0 || (store.medsPast||[]).length>0
-  const familyReady = (store.family||[]).length>0 && (store.family||[]).every((r:any)=>r.relation && r.conditions)
-  const recordsReady = (store.recordsIndex||[]).every((r:any)=>r.filename && r.dateRange)
-  const testsReady = (store.testsIndex||[]).every((r:any)=>r.filename && r.dateRange)
+  const timelineReady = (narrative.timeline||[]).length>0
+  const medsReady = (medsCurrent||[]).length>0 || (medsPast||[]).length>0
+  const familyReady = (family||[]).length>0 && (family||[]).every((r:any)=>r.relation && r.conditions)
+  const recordsReady = (recordsIndex||[]).every((r:any)=>r.filename && r.dateRange)
+  const testsReady = (testsIndex||[]).every((r:any)=>r.filename && r.dateRange)
 
   return (
     <div className="space-y-3">
@@ -473,14 +478,14 @@ function ExportPanel(){
       {red && <p className="text-xs text-[color:var(--muted)]">Redacted preview is ON. Exports will include the full patient name.</p>}
       <p className="text-sm text-gray-700">Export completed sections as DOCX. Upload to Consultagene. Section 3 provider letter must be written by a clinician; you can export a tracker summary here.</p>
       <div className="flex gap-2 flex-wrap">
-        <button className="btn btn-primary" onClick={()=>generateCoverTocDoc(store)}><FileSpreadsheet size={18} className="mr-2"/>Export Section 1/9 — Cover & TOC</button>
-        <button className="btn btn-primary" onClick={()=>generateProviderTrackerDoc(store)}><ClipboardList size={18} className="mr-2"/>Export Section 3 — Provider Tracker</button>
-        <button className="btn btn-primary" onClick={()=>generateNarrativeDoc(store)} disabled={!narrativeReady}><FileText size={18} className="mr-2"/>Export Section 2 — Narrative</button>
-        <button className="btn btn-primary" onClick={()=>generateTimelineDoc(store)} disabled={!timelineReady}><CalendarRange size={18} className="mr-2"/>Export Section 4 — Timeline</button>
-        <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(store)} disabled={!recordsReady}><FolderOutput size={18} className="mr-2"/>Export Section 5 — Records Cover</button>
-        <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(store)} disabled={!testsReady}><FlaskConical size={18} className="mr-2"/>Export Section 6 — Tests Cover</button>
-        <button className="btn btn-primary" onClick={()=>generateMedsDoc(store)} disabled={!medsReady}><Pill size={18} className="mr-2"/>Export Section 7 — Medications</button>
-        <button className="btn btn-primary" onClick={()=>generateFamilyDoc(store)} disabled={!familyReady}><Users size={18} className="mr-2"/>Export Section 8 — Family</button>
+        <button className="btn btn-primary" onClick={()=>generateCoverTocDoc(usePacket.getState())}><FileSpreadsheet size={18} className="mr-2"/>Export Section 1/9 — Cover & TOC</button>
+        <button className="btn btn-primary" onClick={()=>generateProviderTrackerDoc(usePacket.getState())}><ClipboardList size={18} className="mr-2"/>Export Section 3 — Provider Tracker</button>
+        <button className="btn btn-primary" onClick={()=>generateNarrativeDoc(usePacket.getState())} disabled={!narrativeReady}><FileText size={18} className="mr-2"/>Export Section 2 — Narrative</button>
+        <button className="btn btn-primary" onClick={()=>generateTimelineDoc(usePacket.getState())} disabled={!timelineReady}><CalendarRange size={18} className="mr-2"/>Export Section 4 — Timeline</button>
+        <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(usePacket.getState())} disabled={!recordsReady}><FolderOutput size={18} className="mr-2"/>Export Section 5 — Records Cover</button>
+        <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(usePacket.getState())} disabled={!testsReady}><FlaskConical size={18} className="mr-2"/>Export Section 6 — Tests Cover</button>
+        <button className="btn btn-primary" onClick={()=>generateMedsDoc(usePacket.getState())} disabled={!medsReady}><Pill size={18} className="mr-2"/>Export Section 7 — Medications</button>
+        <button className="btn btn-primary" onClick={()=>generateFamilyDoc(usePacket.getState())} disabled={!familyReady}><Users size={18} className="mr-2"/>Export Section 8 — Family</button>
       </div>
     </div>
   )
