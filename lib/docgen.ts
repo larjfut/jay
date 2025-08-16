@@ -146,18 +146,21 @@ export async function buildTestsCoverDoc(state: PacketState){
 
 export async function buildProviderTrackerDoc(state: PacketState){
   const docx = await loadDocx()
-  const { Document, Packer } = docx
+  const { Document, Packer, Table, TableRow, TableCell, WidthType } = docx
   const { titlePara, p } = helpers(docx)
-  const prov = state.provider
-  const doc = new Document({ sections: [{ children: [
-    titlePara('Section 3 — Provider Tracker'),
-    p(`Doctor: ${prov.doctorName || ''}`),
-    p(`Specialty: ${prov.specialty || ''}`),
-    p(`Email: ${prov.email || ''}`),
-    p(`Due Date: ${prov.dueDate || ''}`),
-    p(`Status: ${prov.status || ''}`),
-    p(`Notes: ${prov.notes || ''}`),
-  ] }]})
+  const prov = state.provider || {} as PacketState['provider']
+  const table = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({ children: [ new TableCell({ children:[p('Doctor')] }), new TableCell({ children:[p(prov.doctorName || '')] }) ] }),
+      new TableRow({ children: [ new TableCell({ children:[p('Specialty')] }), new TableCell({ children:[p(prov.specialty || '')] }) ] }),
+      new TableRow({ children: [ new TableCell({ children:[p('Email')] }), new TableCell({ children:[p(prov.email || '')] }) ] }),
+      new TableRow({ children: [ new TableCell({ children:[p('Due Date')] }), new TableCell({ children:[p(prov.dueDate || '')] }) ] }),
+      new TableRow({ children: [ new TableCell({ children:[p('Status')] }), new TableCell({ children:[p(prov.status || '')] }) ] }),
+      new TableRow({ children: [ new TableCell({ children:[p('Notes')] }), new TableCell({ children:[p(prov.notes || '')] }) ] }),
+    ]
+  })
+  const doc = new Document({ sections: [{ children: [ titlePara('Section 3 — Provider Tracker'), table ] }] })
   return { doc, async createBlob(){ return await Packer.toBlob(doc) } }
 }
 

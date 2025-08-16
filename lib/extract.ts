@@ -1,4 +1,5 @@
 'use client'
+import type { MedRow } from '@/lib/store'
 
 export async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjs = await import('pdfjs-dist')
@@ -120,4 +121,45 @@ export function parseTimelineEvents(text: string): TimelineParsed[] {
     if (seen.has(key)) return false
     seen.add(key); return true
   }).slice(0, 50)
+}
+
+// -------- Medications (Section 7) --------
+export function parseMedication(text: string): MedRow {
+  const lines = text.replace(/\r/g, '').split(/\n+/).map(l => l.trim()).filter(Boolean)
+  const first = lines[0] || ''
+
+  let name = ''
+  let dose = ''
+  const doseMatch = first.match(/\b\d+[^\s]*\s*(?:mg|mcg|g|ml|units|tabs?|caps?|drops?|puffs?|%)[^\s]*/i)
+  if (doseMatch) {
+    const idx = first.toLowerCase().indexOf(doseMatch[0].toLowerCase())
+    name = first.slice(0, idx).trim()
+    dose = first.slice(idx).trim()
+  } else {
+    name = first.trim()
+  }
+
+  const dateMatches = Array.from(text.matchAll(/\b(\d{1,2})[\/\-](\d{2,4})\b/g))
+  const fmt = (m: any) => {
+    const mm = parseInt(m[1], 10)
+    const yy = m[2]
+    const yyyy = yy.length === 2 ? '20' + yy : yy
+    return String(mm).padStart(2, '0') + '/' + yyyy
+  }
+  const start = dateMatches[0] ? fmt(dateMatches[0]) : ''
+  const stop = dateMatches[1] ? fmt(dateMatches[1]) : ''
+
+  const purposeMatch = text.match(/purpose[:\s]+([^\n]+)/i) || text.match(/for[:\s]+([^\n]+)/i)
+  const responseMatch = text.match(/response[:\s]+([^\n]+)/i)
+  const sidefxMatch = text.match(/side(?:[- ]?effects?|fx)[:\s]+([^\n]+)/i) || text.match(/reason stopped[:\s]+([^\n]+)/i)
+
+  return {
+    name,
+    dose,
+    start,
+    stop,
+    purpose: purposeMatch ? purposeMatch[1].trim() : undefined,
+    response: responseMatch ? responseMatch[1].trim() : undefined,
+    sidefx: sidefxMatch ? sidefxMatch[1].trim() : undefined
+  }
 }

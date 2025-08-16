@@ -5,9 +5,11 @@ import { generateTestsCoverDoc } from '@/lib/docgen'
 import TwoCol from '@/components/TwoCol'
 import InfoSidebar from '@/components/InfoSidebar'
 import Tooltip from '@/components/Tooltip'
+import SmartImportDialog from '@/components/SmartImportDialog'
 export default function TestsPage(){
   const store = usePacket()
   const [rows, setRows] = useState<TestsIndexRow[]>(store.testsIndex||[])
+  const [open, setOpen] = useState(false)
   useEffect(()=>{
     const loaded = loadFromLocal()
     if (loaded.testsIndex) setRows(loaded.testsIndex as any)
@@ -18,10 +20,18 @@ export default function TestsPage(){
 
   const left = (
     <main className="card">
+      <div className="flex justify-end mb-2">
+        <button className="btn" onClick={()=>setOpen(true)}>Smart Import</button>
+      </div>
       <IndexTable rows={rows} onChange={setRows} />
       <div className="pt-4">
         <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(store)}>Export Cover Sheet (DOCX)</button>
       </div>
+      <SmartImportDialog
+        open={open}
+        onClose={()=>setOpen(false)}
+        onApply={r=>setRows(prev=>prev.map(row=>row.category===r.category?{...row, filename:r.filename, dateRange:r.dateRange}:row))}
+      />
     </main>
   )
 

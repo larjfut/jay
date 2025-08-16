@@ -10,8 +10,6 @@ import InfoSidebar from '@/components/InfoSidebar'
 import StatusBadge from '@/components/StatusBadge'
 import { useToast } from '@/components/Toast'
 import { useDisplayName } from '@/lib/store'
-import { downloadAllZip } from '@/lib/zip'
-import { Archive} from 'lucide-react'
 
 import { CalendarRange, ClipboardList, FileDown, FileSpreadsheet, FileText, FlaskConical, FolderOpenDot, FolderOutput, NotebookPen, Pill, TestTubes, LineChart as TimelineIcon, Users} from 'lucide-react'
 
