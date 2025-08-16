@@ -5,9 +5,11 @@ import { generateTestsCoverDoc } from '@/lib/docgen'
 import TwoCol from '@/components/TwoCol'
 import InfoSidebar from '@/components/InfoSidebar'
 import Tooltip from '@/components/Tooltip'
+import SmartImportDialog from '@/components/SmartImportDialog'
 export default function TestsPage(){
   const store = usePacket()
   const [rows, setRows] = useState<TestsIndexRow[]>(store.testsIndex||[])
+  const [openTI, setOpenTI] = useState(false)
   useEffect(()=>{
     const loaded = loadFromLocal()
     if (loaded.testsIndex) setRows(loaded.testsIndex as any)
@@ -16,12 +18,15 @@ export default function TestsPage(){
     store.set('testsIndex', rows); saveToLocal({} as any)
   },[rows])
 
+  function onApplyImport(r:{category:string; filename:string; dateRange:string}){
+    setRows([...rows, r])
+  }
+
   const left = (
     <main className="card">
-      \1
-        <div className="mt-2 flex flex-wrap gap-2">
-          <button className="btn" onClick={()=>setOpenTI(true)}>Smart Import (PDFs/images)</button>
-        </div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button className="btn" onClick={()=>setOpenTI(true)}>Smart Import (PDFs/images)</button>
+      </div>
       <IndexTable rows={rows} onChange={setRows} />
       <div className="pt-4">
         <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(store)}>Export Cover Sheet (DOCX)</button>

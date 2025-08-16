@@ -132,6 +132,14 @@ export async function generateMedsDoc(state: PacketState){ const b = await build
 export async function generateFamilyDoc(state: PacketState){ const b = await buildFamilyDoc(state).createBlob(); dl(b, '8_Family_History.docx') }
 export async function generateRecordsCoverDoc(state: PacketState){ const b = await buildRecordsCoverDoc(state).createBlob(); dl(b, '5_Records_Index_Cover.docx') }
 export async function generateTestsCoverDoc(state: PacketState){ const b = await buildTestsCoverDoc(state).createBlob(); dl(b, '6_Tests_Index_Cover.docx') }
+export async function generateProviderTrackerDoc(state: PacketState){
+  const { Document, Packer, Paragraph, TextRun } = await import('docx')
+  const doc = new Document({ sections:[{ children:[
+    new Paragraph({ children:[new TextRun('Provider Tracker')] })
+  ]}] })
+  const blob = await Packer.toBlob(doc)
+  dl(blob, '3_Provider_Tracker.docx')
+}
 
 function dl(blob: Blob, name: string){
   const a = document.createElement('a')
