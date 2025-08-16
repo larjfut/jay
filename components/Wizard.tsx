@@ -114,10 +114,9 @@ export default function Wizard(){
         <button className="btn" onClick={prev} disabled={step===1}>Back</button>
         <button className="btn btn-primary" onClick={next} disabled={step===7}>Next</button>
       </div>
-      <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
-    </div>
-  )
-}
+      </div>
+    )
+  }
 
 function NarrativeHelp(){
   return (
@@ -255,10 +254,9 @@ function NarrativeForm(){
       <div className="pt-2">
         <button className="btn btn-primary" onClick={()=>generateNarrativeDoc(store)} disabled={!ready}>Export Section 2 (DOCX)</button>
       </div>
-      <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
-    </div>
-  )
-}
+      </div>
+    )
+  }
 
 function TimelineOnly(){
   const store = usePacket()
@@ -277,10 +275,9 @@ function TimelineOnly(){
         <button className="btn btn-primary" onClick={()=>generateTimelineDoc(store)} disabled={!ready}>Export Section 4 (DOCX)</button>
         <button className="btn" onClick={()=>generateNarrativeDoc(store)} disabled={!ready}>Export Section 2 (Includes timeline)</button>
       </div>
-      <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
-    </div>
-  )
-}
+      </div>
+    )
+  }
 
 function MedsForm(){
   const store = usePacket()
@@ -315,10 +312,9 @@ function MedsForm(){
       <div className="pt-2">
         <button className="btn btn-primary" onClick={()=>generateMedsDoc(store)} disabled={!ready}>Export Section 7 (DOCX)</button>
       </div>
-      <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
-    </div>
-  )
-}
+      </div>
+    )
+  }
 
 function FamilyForm(){
   const store = usePacket()
@@ -371,23 +367,22 @@ function FamilyForm(){
       <div className="pt-2">
         <button className="btn btn-primary" onClick={()=>generateFamilyDoc(store)} disabled={!ready}>Export Section 8 (DOCX)</button>
       </div>
-      <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
-    </div>
-  )
-  function upd(i:number, row:any){ setRows(rows.map((r,k)=>k===i?row:r)) }
-}
-
-function RecordsIndex(){
-  const store = usePacket()
-  const [rows, setRows] = useState(store.recordsIndex||[])
-  const [openRI, setOpenRI] = useState(false)
-  const ready = rows.every(r=>r.filename && r.dateRange)
-  useEffect(()=>{ store.set('recordsIndex', rows); saveToLocal({} as any) }, [rows])
-  function onApplyImport(r:{category:string; filename:string; dateRange:string}){
-    setRows([...rows, { category: r.category, filename: r.filename, dateRange: r.dateRange }])
+      </div>
+    )
+    function upd(i:number, row:any){ setRows(rows.map((r,k)=>k===i?row:r)) }
   }
-  return (
-    <div>
+
+  function RecordsIndex(){
+    const store = usePacket()
+    const [rows, setRows] = useState(store.recordsIndex||[])
+    const [open, setOpen] = useState(false)
+    const ready = rows.every(r=>r.filename && r.dateRange)
+    useEffect(()=>{ store.set('recordsIndex', rows); saveToLocal({} as any) }, [rows])
+    function onApplyImport(r:{category:string; filename:string; dateRange:string}){
+      setRows([...rows, { category: r.category, filename: r.filename, dateRange: r.dateRange }])
+    }
+    return (
+      <div>
       <div className="flex items-center justify-between">
         <h3 className="section-title">Medical Records Index</h3>
         <StatusBadge ok={ready} label={ready?'Ready':'Add filename + date range for all rows'} />
@@ -410,15 +405,16 @@ function RecordsIndex(){
           ))}
         </tbody>
       </table>
-      <div className="pt-2 flex gap-2"><button className="btn" onClick={()=>setOpenMeds(true)}>Smart Import (PDFs/images)</button><button className="btn" onClick={()=>setOpenRI(true)}>Smart Import (PDFs/images)</button><button className="btn" onClick={()=>setOpen(true)}>Smart Import (PDFs/images)</button>
-        <button className="btn" onClick={()=>setRows(rows.map((r,i)=>({...r, filename: r.filename||`${5}.{i+1}_${r.category.replace(/\W+/g,'_')}.pdf`})))}>Autofill filenames</button>
-        <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(store)} disabled={!ready}>Export Section 5 Cover (DOCX)</button>
+        <div className="pt-2 flex gap-2">
+          <button className="btn" onClick={()=>setOpen(true)}>Smart Import (PDFs/images)</button>
+          <button className="btn" onClick={()=>setRows(rows.map((r,i)=>({...r, filename: r.filename||`${5}.${i+1}_${r.category.replace(/\W+/g,'_')}.pdf`})))}>Autofill filenames</button>
+          <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(store)} disabled={!ready}>Export Section 5 Cover (DOCX)</button>
+        </div>
+        <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
       </div>
-      <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
-    </div>
-  )
-  function upd(i:number, row:any){ setRows(rows.map((r,k)=>k===i?row:r)) }
-}
+    )
+    function upd(i:number, row:any){ setRows(rows.map((r,k)=>k===i?row:r)) }
+  }
 
 function TestsIndex(){
   const store = usePacket()
@@ -453,15 +449,16 @@ function TestsIndex(){
           ))}
         </tbody>
       </table>
-      <div className="pt-2 flex gap-2"><button className="btn" onClick={()=>setOpenMeds(true)}>Smart Import (PDFs/images)</button><button className="btn" onClick={()=>setOpenRI(true)}>Smart Import (PDFs/images)</button><button className="btn" onClick={()=>setOpen(true)}>Smart Import (PDFs/images)</button>
-        <button className="btn" onClick={()=>setRows(rows.map((r,i)=>({...r, filename: r.filename||`${6}.{i+1}_${r.category.replace(/\W+/g,'_')}.pdf`})))}>Autofill filenames</button>
-        <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(store)} disabled={!ready}>Export Section 6 Cover (DOCX)</button>
+        <div className="pt-2 flex gap-2">
+          <button className="btn" onClick={()=>setOpen(true)}>Smart Import (PDFs/images)</button>
+          <button className="btn" onClick={()=>setRows(rows.map((r,i)=>({...r, filename: r.filename||`${6}.${i+1}_${r.category.replace(/\W+/g,'_')}.pdf`})))}>Autofill filenames</button>
+          <button className="btn btn-primary" onClick={()=>generateTestsCoverDoc(store)} disabled={!ready}>Export Section 6 Cover (DOCX)</button>
+        </div>
+        <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
       </div>
-      <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
-    </div>
-  )
-  function upd(i:number, row:any){ setRows(rows.map((r,k)=>k===i?row:r)) }
-}
+    )
+    function upd(i:number, row:any){ setRows(rows.map((r,k)=>k===i?row:r)) }
+  }
 
 function ExportPanel(){
   const { push } = useToast()
@@ -500,10 +497,9 @@ function ExportPanel(){
         <button className="btn btn-primary" onClick={()=>generateMedsDoc(store)} disabled={!medsReady}><Pill size={18} className="mr-2"/>Export Section 7 — Medications</button>
         <button className="btn btn-primary" onClick={()=>generateFamilyDoc(store)} disabled={!familyReady}><Users size={18} className="mr-2"/>Export Section 8 — Family</button>
       </div>
-      <SmartImportDialog open={open} onClose={()=>setOpen(false)} onApply={onApplyImport} />
-    </div>
-  )
-}
+      </div>
+    )
+  }
 
 function Field({label, value, onChange}:{label:string; value:string; onChange:(v:string)=>void}){
   return (

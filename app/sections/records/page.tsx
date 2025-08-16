@@ -5,9 +5,11 @@ import { generateRecordsCoverDoc } from '@/lib/docgen'
 import TwoCol from '@/components/TwoCol'
 import InfoSidebar from '@/components/InfoSidebar'
 import Tooltip from '@/components/Tooltip'
+import SmartImportDialog from '@/components/SmartImportDialog'
 export default function RecordsPage(){
   const store = usePacket()
   const [rows, setRows] = useState<RecordsIndexRow[]>(store.recordsIndex||[])
+  const [openRI, setOpenRI] = useState(false)
   useEffect(()=>{
     const loaded = loadFromLocal()
     if (loaded.recordsIndex) setRows(loaded.recordsIndex as any)
@@ -16,17 +18,20 @@ export default function RecordsPage(){
     store.set('recordsIndex', rows); saveToLocal({} as any)
   },[rows])
 
+  function onApplyImport(r:{category:string; filename:string; dateRange:string}){
+    setRows([...rows, r])
+  }
+
   const left = (
     <main className="card">
-      \1
-        <div className="mt-2 flex flex-wrap gap-2">
-          <button className="btn" onClick={()=>setOpenRI(true)}>Smart Import (PDFs/images)</button>
-        </div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button className="btn" onClick={()=>setOpenRI(true)}>Smart Import (PDFs/images)</button>
+      </div>
       <IndexTable rows={rows} onChange={setRows} />
       <div className="pt-4">
         <button className="btn btn-primary" onClick={()=>generateRecordsCoverDoc(store)}>Export Cover Sheet (DOCX)</button>
       </div>
-      <SmartImportRecords open={openRI} onClose={()=>setOpenRI(false)} onApply={onApplyImport} />
+      <SmartImportDialog open={openRI} onClose={()=>setOpenRI(false)} onApply={onApplyImport} />
     </main>
   )
 

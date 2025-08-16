@@ -1,19 +1,13 @@
 'use client'
 import TwoCol from '@/components/TwoCol'
 import InfoSidebar from '@/components/InfoSidebar'
-import SmartImportDialog from '@/components/SmartImportDialog'
+import SmartImportMeds from '@/components/SmartImportMeds'
 import { usePacket, saveToLocal } from '@/lib/store'
 import { useState } from 'react'
 
 export default function Page() {
   const store = usePacket()
   const [openMeds, setOpenMeds] = useState(false)
-  function onApplyMeds(r:{category:string; filename?:string; dateRange?:string}){
-    const name = (r.filename||'').replace(/\.[^.]+$/, '')
-    // Append a simple row into medsPast as a placeholder mapping
-    // Adjust structure to match your store if needed
-    store.set('medsPast', [...(store.medsPast||[]), { name }]); saveToLocal({} as any)
-  }
   return (
     <main className="grid gap-6">
       <TwoCol>
