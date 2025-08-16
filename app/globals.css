@@ -1,0 +1,56 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0d1021;
+  --surface: #1b1f3b;
+  --surface-2: #262b52;
+  --text: #e7e9ff;
+  --muted: #a2a7d4;
+  --cta-start: #7a6cf9;
+  --cta-end: #ff9f68;
+  --glow: rgba(177,151,255,.45);
+  --ok: #22c55e; /* green-500 */
+  --warn: #f59e0b; /* amber-500 */
+}
+
+body {
+  background: radial-gradient(1200px 800px at 20% 0%, #15183a 0%, #0d1021 60%);
+  color: var(--text);
+}
+
+/* Component layer */
+@layer components {
+  .container { @apply max-w-4xl mx-auto px-4; }
+  .card { background: var(--surface); @apply rounded-2xl shadow-neu p-6 text-[color:var(--text)]; }
+  .btn { @apply inline-flex items-center gap-2 rounded-2xl px-4 py-2 border border-transparent transition duration-200 ease-out transform hover:scale-[1.02]; background: var(--surface-2); box-shadow: 0 10px 25px rgba(0,0,0,.35); }
+  .btn:hover { box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 12px var(--glow); }
+
+  .badge-success { background: var(--surface-2); box-shadow: 0 0 8px rgba(0,255,128,.6); }
+  .badge-warning { background: var(--surface-2); box-shadow: 0 0 8px rgba(255,200,0,.6); }
+  .badge-error { background: var(--surface-2); box-shadow: 0 0 8px rgba(255,80,80,.6); }
+  .btn:hover { box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 12px var(--glow); }
+  .btn-primary { background-image: linear-gradient(90deg, var(--cta-start), var(--cta-end)); @apply text-white shadow-glow; }
+  .btn:disabled { @apply opacity-60 cursor-not-allowed; }
+  .input { @apply w-full rounded-xl px-3 py-2 border border-transparent text-[color:var(--text)]; background: var(--surface-2); }
+  .input:focus { @apply outline-none ring-2; box-shadow: 0 0 0 2px var(--accent); }
+  .label { @apply block text-sm font-medium mb-1 text-[color:var(--muted)]; }
+  .section-title { @apply text-xl font-semibold mt-6 mb-2; }
+  .badge { @apply inline-block text-xs px-2 py-1 rounded-full; background: var(--surface-2); }
+  .icon-btn { @apply w-14 h-14 rounded-2xl grid place-items-center; background: var(--surface-2); box-shadow: 0 10px 25px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); transition: transform .15s ease, box-shadow .2s ease; }
+  .icon-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,.55), 0 0 12px var(--glow), inset 0 1px 0 rgba(255,255,255,.06); }
+  .progress-wrap { @apply w-full rounded-full h-3; background: var(--surface-2); }
+  .progress-bar { background-image: linear-gradient(90deg, var(--cta-start), var(--cta-end)); @apply h-3 rounded-full shadow-glow; transition: width .3s ease; }
+}
+
+
+/* Print-friendly */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .card { box-shadow: none !important; background: #fff !important; }
+  nav, header, footer, .icon-btn, .btn { display: none !important; }
+  .progress-wrap, .progress-bar { display: none !important; }
+  a { text-decoration: none; color: #000; }
+}

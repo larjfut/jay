@@ -1,0 +1,43 @@
+{
+  "name": "baylor-udc-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run -s lint && npm run -s typecheck"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "3.23.8",
+    "zustand": "4.5.2",
+    "docx": "8.5.0",
+    "date-fns": "3.6.0",
+    "clsx": "2.1.1",
+    "jszip": "^3.10.1",
+    "lucide-react": "^0.453.0",
+    "pdfjs-dist": "^4.4.168",
+    "tesseract.js": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.9",
+    "@types/react": "18.2.66",
+    "@types/react-dom": "18.2.22",
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.38",
+    "tailwindcss": "3.4.7",
+    "typescript": "5.5.3",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5"
+  },
+  "engines": {
+    "node": ">=18.18"
+  },
+  "description": "Next.js App Router dashboard for building Baylor UDC self-referral packet, with client-side DOCX export.",
+  "license": "UNLICENSED"
+}
