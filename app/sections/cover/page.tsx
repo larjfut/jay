@@ -4,9 +4,10 @@ import { usePacket, loadFromLocal, saveToLocal, type CoverToc } from '@/lib/stor
 import { generateCoverTocDoc } from '@/lib/docgen'
 
 export default function CoverPage(){
-  const store = usePacket()
-  const [meta, setMeta] = useState(store.coverToc || {items:[]})
-  const [items, setItems] = useState<CoverToc['items']>(store.coverToc?.items || [])
+  const coverToc = usePacket(s => s.coverToc)
+  const set = usePacket(s => s.set)
+  const [meta, setMeta] = useState(coverToc || {items:[]})
+  const [items, setItems] = useState<CoverToc['items']>(coverToc?.items || [])
 
   useEffect(()=>{
     const loaded = loadFromLocal()
@@ -19,8 +20,8 @@ export default function CoverPage(){
   },[])
 
   useEffect(()=>{
-    store.set('coverToc', { ...meta, items }); saveToLocal({} as any)
-  },[meta, items])
+    set('coverToc', { ...meta, items }); saveToLocal({} as any)
+  },[meta, items, set])
 
   return (
     <main className="card space-y-4">
@@ -33,7 +34,7 @@ export default function CoverPage(){
       <h3 className="section-title">Sections Included</h3>
       <Table rows={items} onChange={setItems} />
       <div className="pt-2">
-        <button className="btn btn-primary" onClick={()=>generateCoverTocDoc(store)}>Export Cover & TOC (DOCX)</button>
+        <button className="btn btn-primary" onClick={()=>generateCoverTocDoc(usePacket.getState())}>Export Cover & TOC (DOCX)</button>
       </div>
     </main>
   )

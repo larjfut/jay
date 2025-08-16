@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import { usePacket, saveToLocal } from '@/lib/store'
 
 export default function PatientCard(){
-  const store = usePacket()
-  const [name, setName] = useState(store.patient.name||'Jay')
-  const [pronouns, setPronouns] = useState(store.patient.pronouns||'')
+  const set = usePacket(s => s.set)
+  const patient = usePacket(s => s.patient)
+  const [name, setName] = useState(patient.name||'Jay')
+  const [pronouns, setPronouns] = useState(patient.pronouns||'')
   useEffect(()=>{
-    store.set('patient', { ...store.patient, name, pronouns })
+    set('patient', { ...usePacket.getState().patient, name, pronouns })
     saveToLocal({})
-  }, [name, pronouns])
+  }, [name, pronouns, set])
   return (
     <div className="card">
       <h2 className="text-lg font-semibold">Patient settings</h2>

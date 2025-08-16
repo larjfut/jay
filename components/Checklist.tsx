@@ -14,16 +14,17 @@ const items = [
 ]
 
 export default function Checklist(){
-  const store = usePacket()
-  const [checks, setChecks] = useState<Record<string, boolean>>(store.checklist || {})
+  const checklist = usePacket(s => s.checklist)
+  const set = usePacket(s => s.set)
+  const [checks, setChecks] = useState<Record<string, boolean>>(checklist || {})
   useEffect(()=>{
     const loaded = loadFromLocal()
     if (loaded.checklist) setChecks(loaded.checklist)
   },[])
   useEffect(()=>{
-    store.set('checklist', checks)
-    saveToLocal({ ...store, checklist: checks } as any)
-  },[checks])
+    set('checklist', checks)
+    saveToLocal({} as any)
+  },[checks, set])
   return (
     <div className="card">
       <h2 className="text-lg font-semibold mb-3">Document Checklist</h2>
