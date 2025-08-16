@@ -1,11 +1,10 @@
 'use client'
-import { Children, type ReactNode } from 'react'
+import { Children, type ReactNode, type PropsWithChildren } from 'react'
 
-type Props = {
+type Props = PropsWithChildren<{
   left?: ReactNode
   right?: ReactNode
-  children?: ReactNode | ReactNode[]
-}
+}>
 
 export default function TwoCol({ left, right, children }: Props) {
   const kids = Children.toArray(children ?? [])

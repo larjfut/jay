@@ -20,7 +20,7 @@ export default function ProviderPage(){
     <main className="card space-y-4">
       <h2 className="text-lg font-semibold">Section 3 — Provider Letter Tracker</h2>
       <Field label="Doctor name" value={p.doctorName} onChange={v=>setP({...p, doctorName:v})} />
-      <Field label="Specialty" value={p.specialty} onChange={v=>setP({...p, specialty:v})} />
+        <Field label="Specialty" value={p.specialty||''} onChange={v=>setP({...p, specialty:v})} />
       <Field label="Email" value={p.email||''} onChange={v=>setP({...p, email:v})} />
       <Field label="Due date (YYYY-MM-DD)" value={p.dueDate||''} onChange={v=>setP({...p, dueDate:v})} />
       <label className="label">Status</label>

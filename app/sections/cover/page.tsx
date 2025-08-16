@@ -1,12 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { usePacket, loadFromLocal, saveToLocal, CoverTOCItem } from '@/lib/store'
+import { usePacket, loadFromLocal, saveToLocal, type CoverToc } from '@/lib/store'
 import { generateCoverTocDoc } from '@/lib/docgen'
 
 export default function CoverPage(){
   const store = usePacket()
   const [meta, setMeta] = useState(store.coverToc || {items:[]})
-  const [items, setItems] = useState<CoverTOCItem[]>(store.coverToc?.items || [])
+  const [items, setItems] = useState<CoverToc['items']>(store.coverToc?.items || [])
 
   useEffect(()=>{
     const loaded = loadFromLocal()
@@ -48,8 +48,10 @@ function Field({label, value, onChange}:{label:string; value:string; onChange:(v
   )
 }
 
-function Table({rows, onChange}:{rows:CoverTOCItem[]; onChange:(r:CoverTOCItem[])=>void}){
-  function upd(i:number, r:CoverTOCItem){ onChange(rows.map((row,k)=>k===i?r:row)) }
+type CoverTocItem = CoverToc['items'][number]
+
+function Table({rows, onChange}:{rows:CoverTocItem[]; onChange:(r:CoverTocItem[])=>void}){
+  function upd(i:number, r:CoverTocItem){ onChange(rows.map((row,k)=>k===i?r:row)) }
   return (
     <table className="w-full border text-sm">
       <thead><tr className="bg-gray-50">
